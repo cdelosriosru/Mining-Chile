@@ -71,9 +71,9 @@ salud_m$long_sal<-salud_m$LONGITUD
 
 # read one year of pollution Data.
 
-y<- c(2008 , 2010) # years
-w <- c(1:2) # weeks
-x <- c(1000 , 1500) # buffers in meters. 
+y<- c(2005:2016) # years
+w <- c(1:52) # weeks
+x <- c(1000 , 1500) # buffers in meters. (if this changes you have to change the merge inside the loop)
 
 setwd(datapol)
 
@@ -186,9 +186,6 @@ all$coords.x2 <- NULL
 
 save.dta13(data=all,file="all_pollute.dta") # here comes all the data in a single dta.
 
-
-
-# save salud_m to have a
 
 
 
