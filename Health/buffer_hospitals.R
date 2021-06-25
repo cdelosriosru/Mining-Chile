@@ -57,8 +57,8 @@ salud_m$idsalud <- 1:nrow(salud_m)
 #salud_m$lati_sal<-salud_m@coords[,2]
 #salud_m$long_sal<-salud_m@coords[,1]
 
-salud_m$lati_sal<-salud_m$LATITUD
-salud_m$long_sal<-salud_m$LONGITUD
+names(salud_m)[names(salud_m) == "LATITUD"] <- "lati_sal"  # change the name of var to identify better
+names(salud_m)[names(salud_m) == "LONGITUD"] <- "long_sal"  # change the name of var to identify better
 
 #colegio<- na.omit(colegio,lat_cole, lon_cole)
 #coord<-colegio[,c(2,1)]
@@ -88,8 +88,10 @@ for (v in 1:length(y)){
     pollute<-readOGR(dsn=nameyear[1], layer=nameweek[1])
     pollute<-spTransform(pollute,CRS=CRS("+init=epsg:9155"))
     
-    pollute$lati_pol<-pollute$Latitude
-    pollute$long_pol<-pollute$Longitude
+    names(pollute)[names(pollute) == "Latitude"] <- "lati_pol"  # change the name of var to identify better
+    names(pollute)[names(pollute) == "Longitude"] <- "lati_pol"  # change the name of var to identify better
+    
+  
     pollute$week<-w[va]
     pollute$year<-y[v]
     
@@ -113,11 +115,15 @@ for (v in 1:length(y)){
       
       salud_m_pollute<-salud_m_pollute %>% 
         mutate(dist_inv=1/dist)
-      
+     
+      salud_m_pollute$puntos<-1
       salud_m_pollute<-salud_m_pollute%>%
         group_by(idsalud )%>%
         summarize(contaminaw = weighted.mean(dist_inv, UVAI),
                   contamina = mean(UVAI),
+                  contaminamax = max(UVAI),
+                  contaminamin = min(UVAI),
+                  puntos = sum(puntos),
                   week = first(week),
                   year = first(year))
       # En lo de arriba podemos poner todo lo que se nos ocurra en el summarize
@@ -129,6 +135,18 @@ for (v in 1:length(y)){
       
       namevar<-(paste("contamina_",x[val], sep=""))
       names(salud_m_pollute)[names(salud_m_pollute) == "contamina"] <- namevar[1]  # change the name of var to identify better
+      
+      namevar<-(paste("contaminamax_",x[val], sep=""))
+      names(salud_m_pollute)[names(salud_m_pollute) == "contaminamax"] <- namevar[1]  # change the name of var to identify better
+      
+      namevar<-(paste("contaminamin_",x[val], sep=""))
+      names(salud_m_pollute)[names(salud_m_pollute) == "contaminamin"] <- namevar[1]  # change the name of var to identify better
+      
+      namevar<-(paste("puntos_",x[val], sep=""))
+      names(salud_m_pollute)[names(salud_m_pollute) == "puntos"] <- namevar[1]  # change the name of var to identify better
+      
+      
+      
       
       name<-(paste("salud_m_pollute_",x[val], sep=""))
       print(name)
