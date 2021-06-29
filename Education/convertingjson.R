@@ -278,6 +278,77 @@ writeOGR(Yacimientos, "Yacimientos" ,driver="ESRI Shapefile", layer="Yacimientos
 
 
 
+# Instalaciones Minera-------
+
+setwd("C:/Users/cdelo/Documents/GitHub/Chile_Mining_Cadastre/Instalaciones/")
+
+# fixing the geometries...
+
+files <- list.files( pattern="*.json", full.names=TRUE, recursive=FALSE)
+names <- substr(files, 3, StrPos(files,".json")-1)
+for(i in names){
+  path=paste(i,".json",sep="")
+  assign(i, rjson::fromJSON(file = path))
+}
+insta <- lapply(names,get)
+
+
+insta<-lapply(insta, function(i){
+  
+  for (feat in 1:length(i$features)){
+    
+    
+    i$features[[feat]]$geometry$x[i$features[[feat]]$geometry$x == "NaN"] <- 0 # this also works
+    i$features[[feat]]$geometry$y[i$features[[feat]]$geometry$y == "NaN"] <- 0 # this also works
+    i$features[[feat]]$geometry$x <- as.numeric(i$features[[feat]]$geometry$x) # this also works
+    i$features[[feat]]$geometry$y <- as.numeric(i$features[[feat]]$geometry$y) # this also works
+    
+  }
+  i<- rjson::toJSON(i)
+  ; return(i)
+}
+)
+
+
+for (i in seq_along(insta)) {
+  filename = paste(names[i],".json",sep="")
+  writeLines(insta[[i]], filename)
+}
+
+
+files <- list.files( pattern="*.json", full.names=TRUE, recursive=FALSE)
+names <- substr(files, 3 , StrPos(files,".json")-1)
+for(i in names){
+  path=paste(i,".json",sep="")
+  assign(i, geojson_read(path, what = "sp"))
+}
+
+top<-length(names)
+
+splist<-list()
+for (j in 1:top){
+  z <- j
+  sEOG <- paste("Instalaciones_Mineras-", z, sep="")
+  dEOG <- get(paste("Instalaciones_Mineras-", z, sep=""))
+  splist[[sEOG]] <-dEOG
+}
+
+Instalaciones = do.call(rbind, splist)
+
+
+Instalaciones<-st_as_sf(Instalaciones)
+#Instalaciones<-Instalaciones %>% 
+#  filter(LATITUD_SU!=0)
+
+Instalaciones<-as(Instalaciones, "Spatial")
+
+setwd("C:/Users/cdelo/Documents/GitHub/Chile_Mining_Cadastre/")
+
+writeOGR(Instalaciones, "Instalaciones" ,driver="ESRI Shapefile", layer="Instalaciones")
+
+
+
+
 
 
 # After this the files must be reprojected using ArcGIS and a shapefile of the regions of Chile

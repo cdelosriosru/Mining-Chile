@@ -57,11 +57,11 @@ rm(chile) # free some space
 
 setwd(dataeduc)
 
-centpob <- readOGR(dsn="DATA/Admin_maps/Centros_Poblados", layer="Centros_Poblados") # los códigos comunales de esto están mal. 
+centpob <- readOGR(dsn="DATA/Admin_maps/centros_poblados_adj", layer="centros_poblados_adj") 
 centpob<-spTransform(centpob, CRS=CRS("+init=epsg:9155")) # para sacar el centroide en long/lat
 centpob$area<-area(centpob) 
 centpob_clean<-st_as_sf(centpob) #es más fácil trabajarlo en sf format
-centpob_clean$cod_comuna<-as.numeric(centpob_clean$COMUNA)
+centpob_clean$cod_comuna<-as.numeric(centpob_clean$COMUNA_201) # este es el código de comunas actualizado
 
 # se puede filtrar de muchas maneras ya que no siempre hay ciudad para todas las comunas.
 # En el caso de que haya ciudad, dejo ciudad, si hay más de una ciudad dejo aquella con el area más grande, si no hay ciudad dejo el centro poblado más grande. 
